@@ -50,6 +50,15 @@ for index, song in top_30_songs.iterrows():
         print(f"FAIL: Could not find '{track_name}' by {artist_name} on Youtube Music")
 
 # 4. Create an empty playlist with playlist name and description
+playlist_name = "Top TikTok Songs of 2022"
+playlist_description = "A collection of the top TikTok songs from 2022, curated for your listening pleasure."
+try:
+    playlist_id = ytmusic.create_playlist(title=playlist_name, description=playlist_description, video_ids=videoID)
+    print(f"Playlist '{playlist_name}' created successfully with ID: {playlist_id}")
+except Exception as e:
+    print(f"Can't create playlist")
+    print(f"Error: {e}")
+    playlist_id = None
 
 # 5. Add the top 30 songs to the playlist
 
