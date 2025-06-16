@@ -1,11 +1,20 @@
-import panda as pd
-from ytmusicapi import YTMusic
+import time, os
+import pandas as pd
+from ytmusicapi import YTMusic, OAuthCredentials
+from dotenv import load_dotenv
+
+# Read from .env
+load_dotenv()
+
+# Fetch from .env
+client_id = os.getenv("CLIENT_ID")
+client_secret = os.getenv("CLIENT_SECRET")
 
 # 1. Authenticate with YouTube Music
-# This looks for your headers_auth.json file
 print("Authenticating with YouTube Music...")
 try:
-    ytmusic = YTMusic('headers_auth.json')
+    oauth_creds = OAuthCredentials(client_id, client_secret)
+    ytmusic = YTMusic('oauth.json', oauth_credentials=oauth_creds)
     print("Authentication successful!")
 except Exception as e:
     print("\nCould not authenticate. Did you run 'ytmusicapi setup'?")
@@ -19,6 +28,26 @@ top_songs_df = df.sort_values(by='track_pop', ascending=False)
 top_30_songs = top_songs_df.head(30)
 
 # 3. Iterate through the dataframe and search song's video ID on yt music.
+videoID = []
+for index, song in top_30_songs.iterrows():
+    track_name = song['track_name']
+    artist_name = song['artist_name']
+    
+    # A simple search query often works best
+    query1 = f"{track_name} {artist_name}"
+
+    # We add a small delay to be respectful to the API
+    time.sleep(1) 
+
+    searchResults = ytmusic.search(query=query1, filter='songs', limit=1)
+    if searchResults:
+        videoId = searchResults[0]['videoId']
+        videoID.append(videoId)
+        
+        found_title = searchResults[0]['title']
+        print(f"SUCCESS: Found '{found_title}' (ID: {videoId})")
+    else:
+        print(f"FAIL: Could not find '{track_name}' by {artist_name} on Youtube Music")
 
 # 4. Create an empty playlist with playlist name and description
 
